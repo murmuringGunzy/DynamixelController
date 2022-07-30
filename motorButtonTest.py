@@ -94,6 +94,7 @@ GPIO.setup(button_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 # first, send to open position
 # write
+print('Going to open position')
 dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_GOAL_POSITION, dxl_open_pos)
 if dxl_comm_result != COMM_SUCCESS:
     print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
@@ -115,12 +116,13 @@ while 1:
 
 # Main loop
 # ---------
+print('Entering main loop')
 while 1:
     # set goal postion based off button
     if GPIO.input(button_pin) == GPIO.HIGH:
-        go_to_pos = dxl_open_pos
-    else:
         go_to_pos = dxl_close_pos
+    else:
+        go_to_pos = dxl_open_pos
     
     # if at the go_to_pos, just keep looping
     if not abs(go_to_pos - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD:
