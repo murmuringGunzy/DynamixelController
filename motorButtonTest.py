@@ -42,9 +42,8 @@ DXL_MINIMUM_POSITION_VALUE  = 10           # Dynamixel will rotate between this 
 DXL_MAXIMUM_POSITION_VALUE  = 4000            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
 DXL_MOVING_STATUS_THRESHOLD = 20                # Dynamixel moving status threshold
 
-index = 0
-
-
+dxl_close_pos = DXL_MINIMUM_POSITION_VALUE
+dxl_open_pos = DXL_MAXIMUM_POSITION_VALUE
 
 # Initialize PortHandler instance
 # Set the port path
@@ -93,42 +92,57 @@ button_pin = 12
 
 GPIO.setup(button_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
-
-dxl_goal_position = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]
-
-# Main loop
-# ---------
+# first, send to open position
+# write
+dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_GOAL_POSITION, dxl_open_pos)
+if dxl_comm_result != COMM_SUCCESS:
+    print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+elif dxl_error != 0:
+    print("%s" % packetHandler.getRxPacketError(dxl_error))
+# go to 
 while 1:
-    print("Press any key to continue! (or press ESC to quit!)")
-    if getch() == chr(0x1b):
-        break
-
-    # Write goal position
-    dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_GOAL_POSITION, dxl_goal_position[index])
+    # Read present position
+    dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_ID, ADDR_MX_PRESENT_POSITION)
     if dxl_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
     elif dxl_error != 0:
         print("%s" % packetHandler.getRxPacketError(dxl_error))
 
-    while 1:
-        # Read present position
-        dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_ID, ADDR_MX_PRESENT_POSITION)
-        if dxl_comm_result != COMM_SUCCESS:
-            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-        elif dxl_error != 0:
-            print("%s" % packetHandler.getRxPacketError(dxl_error))
+    print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_open_pos, dxl_present_position))
 
-        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_goal_position[index], dxl_present_position))
+    if not abs(dxl_open_pos - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD:
+        break
 
-        if not abs(dxl_goal_position[index] - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD:
-            break
-
-    # Change goal position
-    if index == 0:
-        index = 1
+# Main loop
+# ---------
+while 1:
+    # set goal postion based off button
+    if GPIO.input(button_pin) == GPIO.HIGH:
+        go_to_pos = dxl_open_pos
     else:
-        index = 0
+        go_to_pos = dxl_close_pos
+    
+    # if at the go_to_pos, just keep looping
+    if not abs(go_to_pos - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD:
+        continue
+    
+    # Write goal position
+    dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_MX_GOAL_POSITION, go_to_pos)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
 
+    # Read present position
+    dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_ID, ADDR_MX_PRESENT_POSITION)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
+
+    print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, go_to_pos, dxl_present_position))
+
+    
 
 # Disable Dynamixel Torque
 dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
