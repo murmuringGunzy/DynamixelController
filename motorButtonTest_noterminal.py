@@ -2,25 +2,6 @@ import os
 import RPi.GPIO as GPIO
 import time
 
-# Dynamixel code
-# --------------
-# think this code 
-# if os.name == 'nt':
-#     import msvcrt
-#     def getch():
-#         return msvcrt.getch().decode()
-# else:
-#     import sys, tty, termios
-#     fd = sys.stdin.fileno()
-#     old_settings = termios.tcgetattr(fd)
-#     def getch():
-#         try:
-#             tty.setraw(sys.stdin.fileno())
-#             ch = sys.stdin.read(1)
-#         finally:
-#             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-#         return ch
-
 from dynamixel_sdk import *
 
 # Control table address
@@ -60,9 +41,7 @@ packetHandler = PacketHandler(PROTOCOL_VERSION)
 if portHandler.openPort():
     print("Succeeded to open the port")
 else:
-    print("Failed to open the port")
-    print("Press any key to terminate...")
-    getch()
+    print("Failed to open the port... terminating program")
     quit()
 
 
@@ -70,9 +49,7 @@ else:
 if portHandler.setBaudRate(BAUDRATE):
     print("Succeeded to change the baudrate")
 else:
-    print("Failed to change the baudrate")
-    print("Press any key to terminate...")
-    getch()
+    print("Failed to change the baudrate... terminating program")
     quit()
 
 # Enable Dynamixel Torque
