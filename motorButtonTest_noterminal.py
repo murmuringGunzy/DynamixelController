@@ -1,6 +1,7 @@
 import os
 import RPi.GPIO as GPIO
 import time
+import os # for shutdown button
 
 from dynamixel_sdk import *
 
@@ -64,8 +65,10 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 
 button_pin = 12
+shutdown_pin = 16
 
 GPIO.setup(button_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(shutdown_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 # first, send to open position
 # write
@@ -93,6 +96,23 @@ while 1:
 # ---------
 print('Entering main loop')
 while 1:
+    # shutdown pi if button pressed
+    if GPIO.input(shutdown_pin) == GPIO.HIGH:
+        print("Shutdown pin pressed")
+        # Disable Dynamixel Torque
+        dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
+
+        # Close port
+        portHandler.closePort()
+        
+        os.system('sudo shutdown -h now')
+        sleep(0.05)
+        GPIO.cleanup()
+    
     # set goal postion based off button
     if GPIO.input(button_pin) == GPIO.HIGH:
         go_to_pos = dxl_close_pos
@@ -118,15 +138,3 @@ while 1:
         print("%s" % packetHandler.getRxPacketError(dxl_error))
 
     print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, go_to_pos, dxl_present_position))
-
-    
-
-# Disable Dynamixel Torque
-dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
-if dxl_comm_result != COMM_SUCCESS:
-    print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-elif dxl_error != 0:
-    print("%s" % packetHandler.getRxPacketError(dxl_error))
-
-# Close port
-portHandler.closePort()
