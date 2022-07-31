@@ -24,9 +24,6 @@ dxl_close_pos  = 4000           # Dynamixel will rotate between this value
 dxl_open_pos  = 2000            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
 DXL_MOVING_STATUS_THRESHOLD = 20                # Dynamixel moving status threshold
 
-dxl_close_pos = DXL_MINIMUM_POSITION_VALUE
-dxl_open_pos = DXL_MAXIMUM_POSITION_VALUE
-
 # Initialize PortHandler instance
 # Set the port path
 # Get methods and members of PortHandlerLinux or PortHandlerWindows
