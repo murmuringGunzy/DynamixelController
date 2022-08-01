@@ -110,7 +110,7 @@ while 1:
         portHandler.closePort()
         
         os.system('sudo shutdown -h now')
-        sleep(0.05)
+        time.sleep(0.05)
         GPIO.cleanup()
     
     # set goal postion based off button
