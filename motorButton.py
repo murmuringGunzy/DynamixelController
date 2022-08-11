@@ -70,26 +70,6 @@ shutdown_pin = 16
 GPIO.setup(button_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(shutdown_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
-# first, send to open position
-# Write goal position
-dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, dxl_open_pos)
-if dxl_comm_result != COMM_SUCCESS:
-    print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-elif dxl_error != 0:
-    print("%s" % packetHandler.getRxPacketError(dxl_error))
-while 1:
-        # Read present position
-        dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION)
-        if dxl_comm_result != COMM_SUCCESS:
-            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-        elif dxl_error != 0:
-            print("%s" % packetHandler.getRxPacketError(dxl_error))
-
-        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_open_pos, dxl_present_position))
-
-        if not abs(dxl_open_pos - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD:
-            break
-
 # Main loop
 # ---------
 print('Entering main loop')
@@ -135,7 +115,7 @@ while 1:
     elif dxl_error != 0:
         print("%s" % packetHandler.getRxPacketError(dxl_error))
 
-    print("GoalPos:%03d  PresPos:%03d" % (go_to_pos, dxl_present_position))  
+    #print("GoalPos:%03d  PresPos:%03d" % (go_to_pos, dxl_present_position))  
 
 # Disable Dynamixel Torque
 dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
