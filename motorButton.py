@@ -10,8 +10,6 @@ MY_DXL = 'MX_SERIES'    # MX series with 2.0 firmware update.
 ADDR_TORQUE_ENABLE          = 64
 ADDR_GOAL_POSITION          = 116
 ADDR_PRESENT_POSITION       = 132
-DXL_MINIMUM_POSITION_VALUE  = 2132        
-DXL_MAXIMUM_POSITION_VALUE  = 2981
 BAUDRATE                    = 57600
 
 PROTOCOL_VERSION            = 2.0
@@ -24,9 +22,8 @@ TORQUE_ENABLE               = 1
 TORQUE_DISABLE              = 0     
 DXL_MOVING_STATUS_THRESHOLD = 20 
 
-dxl_close_pos = DXL_MINIMUM_POSITION_VALUE
-dxl_open_pos = DXL_MAXIMUM_POSITION_VALUE
-
+dxl_close_pos = 2981
+dxl_open_pos = 2132
 
 # Initialize PortHandler instance
 # Set the port path
