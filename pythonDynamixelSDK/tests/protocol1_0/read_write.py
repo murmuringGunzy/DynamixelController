@@ -49,7 +49,7 @@ else:
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 
 # Control table address
-ADDR_MX_TORQUE_ENABLE      = 24               # Control table address is different in Dynamixel model
+ADDR_MX_TORQUE_ENABLE      = 14               # Control table address is different in Dynamixel model
 ADDR_MX_GOAL_POSITION      = 30
 ADDR_MX_PRESENT_POSITION   = 36
 
