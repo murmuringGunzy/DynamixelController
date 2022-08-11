@@ -1,29 +1,34 @@
 import os
 import RPi.GPIO as GPIO
 import time
-import os # for shutdown button
 
 from dynamixel_sdk import *
 
-# Control table address
-ADDR_MX_TORQUE_ENABLE      = 14               # Control table address is different in Dynamixel model
-ADDR_MX_GOAL_POSITION      = 30
-ADDR_MX_PRESENT_POSITION   = 36
+MY_DXL = 'MX_SERIES'
+
+ADDR_TORQUE_ENABLE          = 64
+ADDR_GOAL_POSITION          = 116
+ADDR_PRESENT_POSITION       = 132
+DXL_MINIMUM_POSITION_VALUE  = 0         
+DXL_MAXIMUM_POSITION_VALUE  = 4095    
+BAUDRATE                    = 57600
 
 # Protocol version
-PROTOCOL_VERSION            = 1.0               # See which protocol version is used in the Dynamixel
+PROTOCOL_VERSION            = 2.0
 
-# Default setting
-DXL_ID                      = 5                 # Dynamixel ID : 1
-BAUDRATE                    = 1000000           # Dynamixel default baudrate : 57600
-DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used on your controller
-                                                # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
+# Factory default ID of all DYNAMIXEL is 1
+DXL_ID                      = 5
 
-TORQUE_ENABLE               = 1                 # Value for enabling the torque
-TORQUE_DISABLE              = 0                 # Value for disabling the torque
-dxl_close_pos  = 4000           # Dynamixel will rotate between this value
-dxl_open_pos  = 2000            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
-DXL_MOVING_STATUS_THRESHOLD = 20                # Dynamixel moving status threshold
+# Use the actual port assigned to the U2D2.
+# ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
+DEVICENAME                  = '/dev/ttyUSB0'
+
+TORQUE_ENABLE               = 1     # Value for enabling the torque
+TORQUE_DISABLE              = 0     # Value for disabling the torque
+DXL_MOVING_STATUS_THRESHOLD = 20    # Dynamixel moving status threshold
+
+dxl_close_pos = DXL_MINIMUM_POSITION_VALUE
+dxl_open_pos = DXL_MAXIMUM_POSITION_VALUE
 
 # Initialize PortHandler instance
 # Set the port path
@@ -41,7 +46,6 @@ if portHandler.openPort():
 else:
     print("Failed to open the port... terminating program")
     quit()
-
 
 # Set port baudrate
 if portHandler.setBaudRate(BAUDRATE):
